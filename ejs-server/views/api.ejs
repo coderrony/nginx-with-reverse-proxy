@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg"></div>
+
+    <header class="container header">
+      <div>
+        <div class="kicker">api-server → ejs-server</div>
+        <h1 class="title"><%= title %></h1>
+        <p class="sub">
+          This page fetches JSON from <span class="pill"><%= apiUrl %></span> and renders it with EJS.
+        </p>
+        <p class="muted small">
+          Tip: set <code>API_BASE_URL</code> on the EJS server (e.g. <code>http://127.0.0.1:3002</code> or your Nginx upstream).
+        </p>
+      </div>
+
+      <div class="badge">
+        <div class="badge-top">EJS Server</div>
+        <div class="badge-main"><%= serverName %></div>
+      </div>
+    </header>
+
+    <main class="container grid">
+      <section class="card">
+        <h2>Connection</h2>
+        <div class="kv">
+          <div class="k">EJS Host</div>
+          <div class="v"><%= host %></div>
+          <div class="k">EJS PORT</div>
+          <div class="v"><%= port %></div>
+          <div class="k">API_BASE_URL</div>
+          <div class="v"><%= apiBaseUrl %></div>
+        </div>
+        <div class="muted small">
+          <a href="/" class="pill">← Back home</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>API status</h2>
+
+        <% if (error) { %>
+          <div class="muted">
+            <div class="pill" style="display:inline-block;margin-bottom:8px;">Fetch failed</div>
+            <div><strong>Message:</strong> <%= error.message %></div>
+            <% if (error.status) { %><div><strong>Status:</strong> <%= error.status %></div><% } %>
+          </div>
+          <% if (error.body) { %>
+            <pre class="code"><code><%= typeof error.body === "string" ? error.body : JSON.stringify(error.body, null, 2) %></code></pre>
+          <% } %>
+        <% } else { %>
+          <div class="pill" style="display:inline-block;margin-bottom:8px;">OK</div>
+          <div class="kv">
+            <div class="k">API source</div>
+            <div class="v"><%= apiPayload.source %></div>
+            <div class="k">API time</div>
+            <div class="v"><%= apiPayload.now %></div>
+          </div>
+        <% } %>
+      </section>
+
+      <% if (apiPayload && apiPayload.data) { %>
+        <section class="card wide">
+          <h2><%= apiPayload.data.title %></h2>
+
+          <div class="kv">
+            <div class="k">Request Id</div>
+            <div class="v"><%= apiPayload.request && apiPayload.request.requestId ? apiPayload.request.requestId : "—" %></div>
+            <div class="k">Forwarded For</div>
+            <div class="v"><%= apiPayload.request && apiPayload.request.forwardedFor ? apiPayload.request.forwardedFor : "—" %></div>
+          </div>
+
+          <div style="margin-top: 14px;">
+            <% if (apiPayload.data.items && apiPayload.data.items.length) { %>
+              <div class="kv">
+                <% apiPayload.data.items.forEach((it) => { %>
+                  <div class="k">#<%= it.id %></div>
+                  <div class="v"><strong><%= it.name %></strong> — <span class="pill"><%= it.status %></span></div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <div class="muted">No items</div>
+            <% } %>
+          </div>
+
+          <div class="muted small" style="margin-top: 14px;">
+            Raw JSON:
+          </div>
+          <pre class="code"><code><%= JSON.stringify(apiPayload, null, 2) %></code></pre>
+        </section>
+      <% } %>
+    </main>
+
+    <footer class="container footer">
+      <span>Made with EJS •</span>
+      <span class="muted">Edit <code>views/api.ejs</code> and <code>app.js</code></span>
+    </footer>
+  </body>
+</html>
+
+
