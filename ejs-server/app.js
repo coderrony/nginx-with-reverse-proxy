@@ -97,6 +97,10 @@ app.get("/api", async (req, res) => {
     }
 });
 
+app.get("/healthz", (req, res) => {
+    res.json({ status: "ok",message: "ejs-server is healthy" });
+});
+
 // 404 handler (keep this AFTER all other routes)
 app.use((req, res) => {
     res.status(404).render("404", {
